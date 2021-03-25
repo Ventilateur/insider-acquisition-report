@@ -5,7 +5,7 @@ from sec4 import get_sec4_data, list_sec4_data
 from edgar import gather_weekly_sec4_files
 
 if __name__ == '__main__':
-    def test():
+    def test1():
         # files = gather_weekly_sec4_files()
         # return list_sec4_data(files)
         # print(gather_weekly_sec4_files())
@@ -14,5 +14,9 @@ if __name__ == '__main__':
         data = list_sec4_data(files)
         build_csv_file(data)
 
-    exec_time = timeit.timeit(test, number=1)
+    def test2():
+        files = gather_weekly_sec4_files()
+        print(files)
+
+    exec_time = timeit.timeit(test2, number=1)
     print(exec_time)

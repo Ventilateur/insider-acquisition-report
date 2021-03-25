@@ -35,7 +35,7 @@ class Transaction:
         amounts = _get_sub_elem(element, "transactionAmounts")
         self.nb_shares = float(_get_val(amounts, "transactionShares/value"))
         self.price_per_share = float(_get_val(amounts, "transactionPricePerShare/value"))
-        self.total_amount = self.price_per_share * self.nb_shares
+        self.total_amount = int(self.price_per_share * self.nb_shares)
 
         self._is_acquire = _get_val(amounts, "transactionAcquiredDisposedCode/value") == "A"
         self._is_equity_swap = _get_val(element, "transactionCoding/equitySwapInvolved", allow_missing=True) == "1"
@@ -67,7 +67,8 @@ class Insider:
 class SEC4Data:
     xml_root = "ownershipDocument"
 
-    def __init__(self, element):
+    def __init__(self, element, form_url):
+        self.form_url = form_url
         self.company = _get_val(element, "issuer/issuerName")
         self.company_code = _get_val(element, "issuer/issuerTradingSymbol")
         self.insider = Insider(element)
@@ -100,7 +101,8 @@ class SEC4Data:
                     transaction.nb_shares,
                     f"{transaction.price_per_share}$",
                     transaction.date,
-                    transaction.security_title
+                    transaction.security_title,
+                    self.form_url
                 ]
             )
         return result

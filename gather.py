@@ -17,7 +17,8 @@ def build_csv_file(data: List[List]):
             "Number of shares",
             "Price per share",
             "Date",
-            "Security title"
+            "Security title",
+            "Form file"
         ])
         report_writer.writerows(data)
 

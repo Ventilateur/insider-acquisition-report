@@ -34,7 +34,7 @@ def get_sec4_data(url):
     for _, elem in parser.read_events():
         if elem.tag == SEC4Data.xml_root:
             try:
-                data = SEC4Data(elem)
+                data = SEC4Data(elem, url)
             except (MissingDataException, UnneededDataException):
                 pass
             break

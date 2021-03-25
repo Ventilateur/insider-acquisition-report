@@ -14,7 +14,7 @@ _FILE_URL_IDX = 4
 
 def list_sec4_files(request_date: date):
     print(f"Finding sec4 files of {request_date}")
-    files_loc = []
+    files_loc = set()
 
     if request_date.weekday() >= 5:
         print(f"{request_date} is weekend, skipped")
@@ -37,18 +37,18 @@ def list_sec4_files(request_date: date):
     for line in r.iter_lines():
         fields = line.decode("UTF-8").split("|")
         if len(fields) == _VALID_NB_FIELDS and fields[_TYPE_IDX] == _SEC4_TYPE:
-            files_loc.append(f"{base}/{fields[_FILE_URL_IDX]}")
+            files_loc.add(f"{base}/{fields[_FILE_URL_IDX]}")
 
     return files_loc
 
 
 def gather_weekly_sec4_files():
     day = date.today()
-    sec4_files = []
+    sec4_files = set()
     with ThreadPoolExecutor(max_workers=7) as executor:
-        futures = {executor.submit(list_sec4_files, day - timedelta(i)) for i in range(1, 7)}
+        futures = {executor.submit(list_sec4_files, day - timedelta(i)) for i in range(1, 2)}
         for future in as_completed(futures):
-            sec4_files += future.result(timeout=30)
+            sec4_files |= future.result(timeout=30)
     return sec4_files
 
 
