@@ -1,0 +1,6 @@
+.aws-sam
+.py-dep
+aws
+.idea
+venv*
+deployment-pkg.zip
