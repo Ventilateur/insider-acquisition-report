@@ -46,7 +46,7 @@ def gather_weekly_sec4_files():
     day = date.today()
     sec4_files = set()
     with ThreadPoolExecutor(max_workers=7) as executor:
-        futures = {executor.submit(list_sec4_files, day - timedelta(i)) for i in range(1, 2)}
+        futures = {executor.submit(list_sec4_files, day - timedelta(i)) for i in range(1, 7)}
         for future in as_completed(futures):
             sec4_files |= future.result(timeout=30)
     return sec4_files
