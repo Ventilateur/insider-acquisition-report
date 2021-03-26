@@ -1,5 +1,5 @@
 import re
-from typing import Any, List, Mapping, Optional
+from typing import Any, Mapping, Optional
 from xml.etree.ElementTree import XMLPullParser
 
 import requests
@@ -67,5 +67,5 @@ def list_sec4_data(urls) -> Mapping[str, Any]:
     return data
 
 
-def lambda_handler(event, context) -> Mapping[str, Any]:
+def lambda_handler(event, _) -> Mapping[str, Any]:
     return list_sec4_data(event["urls"])

@@ -42,20 +42,20 @@ def list_sec4_files(request_date: date):
     return files_loc
 
 
-def gather_weekly_sec4_files():
+def gather_recent_sec4_files(day_delta=7):
     day = date.today()
     sec4_files = set()
     with ThreadPoolExecutor(max_workers=7) as executor:
-        futures = {executor.submit(list_sec4_files, day - timedelta(i)) for i in range(1, 7)}
+        futures = {executor.submit(list_sec4_files, day - timedelta(i)) for i in range(1, day_delta)}
         for future in as_completed(futures):
             sec4_files |= future.result(timeout=30)
     return sec4_files
 
 
-def make_chunks(big_list, nb_elem):
+def make_chunks(big_list, nb_elem=10):
     return [big_list[i:i + nb_elem] for i in range(0, len(big_list), nb_elem)]
 
 
-def lambda_handler(event, context) -> List[List[str]]:
-    files_list = gather_weekly_sec4_files()
-    return make_chunks(files_list, 10)
+def lambda_handler(event, _) -> List[List[str]]:
+    files_list = gather_recent_sec4_files(event["config"]["nb_days"])
+    return make_chunks(files_list, event["config"]["chunk_size"])

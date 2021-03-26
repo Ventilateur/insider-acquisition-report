@@ -1,6 +1,4 @@
 from enum import IntEnum
-from typing import Mapping
-
 from xlsxwriter import Workbook
 
 

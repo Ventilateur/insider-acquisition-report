@@ -1,5 +1,3 @@
-from typing import List
-
 from exceptions import MissingDataException, UnneededDataException
 
 
