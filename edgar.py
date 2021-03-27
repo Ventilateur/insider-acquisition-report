@@ -1,20 +1,28 @@
+import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, timedelta
+from enum import IntEnum
 from http import HTTPStatus
 from typing import List
 
 import requests
 from requests import HTTPError
 
-_VALID_NB_FIELDS = 5
+
+class IdxColumn(IntEnum):
+    CIK = 0,
+    NAME = 1,
+    TYPE = 2,
+    DATE = 3,
+    FILE = 4
+
+
 _SEC4_TYPE = "4"
-_TYPE_IDX = 2
-_FILE_URL_IDX = 4
 
 
-def list_sec4_files(request_date: date):
+def list_sec4_files_of_date(request_date: date) -> List[str]:
     print(f"Finding sec4 files of {request_date}")
-    files_loc = set()
+    files_loc = {}
 
     if request_date.weekday() >= 5:
         print(f"{request_date} is weekend, skipped")
@@ -36,19 +44,20 @@ def list_sec4_files(request_date: date):
 
     for line in r.iter_lines():
         fields = line.decode("UTF-8").split("|")
-        if len(fields) == _VALID_NB_FIELDS and fields[_TYPE_IDX] == _SEC4_TYPE:
-            files_loc.add(f"{base}/{fields[_FILE_URL_IDX]}")
+        if len(fields) == len(IdxColumn) and fields[IdxColumn.TYPE] == _SEC4_TYPE:
+            file_path = fields[IdxColumn.FILE]
+            accession_code = os.path.splitext(file_path.split("/")[-1])[0]
+            files_loc[accession_code] = f"{base}/{fields[IdxColumn.FILE]}"
 
-    return files_loc
+    return list(files_loc.values())
 
 
-def gather_recent_sec4_files(day_delta=7):
-    day = date.today()
-    sec4_files = set()
+def list_sec4_files(start_date=date.today(), date_range=7) -> List[str]:
+    sec4_files = []
     with ThreadPoolExecutor(max_workers=7) as executor:
-        futures = {executor.submit(list_sec4_files, day - timedelta(i)) for i in range(1, day_delta)}
+        futures = {executor.submit(list_sec4_files_of_date, start_date - timedelta(i)) for i in range(1, date_range)}
         for future in as_completed(futures):
-            sec4_files |= future.result(timeout=30)
+            sec4_files += future.result(timeout=30)
     return sec4_files
 
 
@@ -57,5 +66,5 @@ def make_chunks(big_list, nb_elem=10):
 
 
 def lambda_handler(event, _) -> List[List[str]]:
-    files_list = gather_recent_sec4_files(event["config"]["nb_days"])
+    files_list = list_sec4_files(event["config"]["nb_days"])
     return make_chunks(files_list, event["config"]["chunk_size"])

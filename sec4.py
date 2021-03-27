@@ -1,5 +1,5 @@
 import re
-from typing import Any, Mapping, Optional
+from typing import Any, List, Mapping, Optional
 from xml.etree.ElementTree import XMLPullParser
 
 import requests
@@ -42,30 +42,14 @@ def get_sec4_data(url) -> Optional[SEC4Data]:
     return data
 
 
-def list_sec4_data(urls) -> Mapping[str, Any]:
-    data = {}
+def list_sec4_data(urls) -> List[Mapping]:
+    data = []
     for url in urls:
         sec4_data = get_sec4_data(url)
         if sec4_data is not None:
-
-            insiders = [str(insider) for insider in sec4_data.insiders]
-            transactions = [
-                {**transaction.to_dict(), "sec4_file": sec4_data.form_url}
-                for transaction in sec4_data.transactions
-            ]
-
-            prev_data = data.get(sec4_data.company, None)
-            if prev_data is None:
-                data[sec4_data.company] = {
-                    "insiders": insiders,
-                    "transactions": transactions
-                }
-            else:
-                prev_data["insiders"] += insiders
-                prev_data["transactions"] += transactions
-
+            data.append(sec4_data.to_dict())
     return data
 
 
-def lambda_handler(event, _) -> Mapping[str, Any]:
+def lambda_handler(event, _) -> List[Mapping]:
     return list_sec4_data(event["urls"])

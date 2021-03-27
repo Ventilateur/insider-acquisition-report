@@ -105,3 +105,11 @@ class SEC4Data:
 
         if len(self.transactions) == 0:
             raise UnneededDataException("No needed transaction")
+
+    def to_dict(self):
+        return {
+            "company": self.company,
+            "insiders": [str(insider) for insider in self.insiders],
+            "transactions": [transaction.to_dict() for transaction in self.transactions],
+            "sec4_file": self.form_url
+        }
