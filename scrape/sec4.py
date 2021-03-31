@@ -1,11 +1,11 @@
 import re
-from typing import Any, List, Mapping, Optional
+from typing import List, Mapping, Optional
 from xml.etree.ElementTree import XMLPullParser
 
 import requests
 
-from exceptions import MissingDataException, UnneededDataException
-from models import SEC4Data
+from scrape.exceptions import MissingDataException, UnneededDataException
+from scrape.models import SEC4Data
 
 _START_TOKEN = "<ownershipDocument>"
 _STOP_TOKEN = "</ownershipDocument>"
@@ -42,12 +42,16 @@ def get_sec4_data(url) -> Optional[SEC4Data]:
     return data
 
 
-def list_sec4_data(urls) -> List[Mapping]:
+def list_sec4_data(urls) -> List[SEC4Data]:
     data = []
+    total = len(urls)
+    current = 1
     for url in urls:
+        print(f"Getting ({current}/{total}): {url}")
         sec4_data = get_sec4_data(url)
         if sec4_data is not None:
-            data.append(sec4_data.to_dict())
+            data.append(sec4_data)
+        current += 1
     return data
 
 

@@ -26,7 +26,7 @@ def list_sec4_files_of_date(request_date: date) -> List[str]:
 
     if request_date.weekday() >= 5:
         print(f"{request_date} is weekend, skipped")
-        return files_loc
+        return []
 
     base = "https://www.sec.gov/Archives"
     quarter = (request_date.month + 2) // 3
@@ -38,7 +38,7 @@ def list_sec4_files_of_date(request_date: date) -> List[str]:
     except HTTPError as e:
         if e.response.status_code == HTTPStatus.FORBIDDEN:
             print(f"No data for {request_date}")
-            return files_loc
+            return []
         else:
             raise e
 
@@ -52,12 +52,15 @@ def list_sec4_files_of_date(request_date: date) -> List[str]:
     return list(files_loc.values())
 
 
-def list_sec4_files(start_date=date.today(), date_range=7) -> List[str]:
+def list_sec4_files(start_date=date.today(), date_range=1) -> List[List[str]]:
     sec4_files = []
-    with ThreadPoolExecutor(max_workers=7) as executor:
-        futures = {executor.submit(list_sec4_files_of_date, start_date - timedelta(i)) for i in range(1, date_range)}
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = {
+            executor.submit(list_sec4_files_of_date, start_date - timedelta(i))
+            for i in range(1, date_range + 1)
+        }
         for future in as_completed(futures):
-            sec4_files += future.result(timeout=30)
+            sec4_files.append(future.result(timeout=30))
     return sec4_files
 
 

@@ -1,4 +1,4 @@
-from exceptions import MissingDataException, UnneededDataException
+from scrape.exceptions import MissingDataException, UnneededDataException
 
 
 def _get_val(element, path, allow_missing=False):
@@ -31,24 +31,16 @@ class Transaction:
         self.security_title = _get_val(element, "securityTitle/value")
 
         amounts = _get_sub_elem(element, "transactionAmounts")
-        self.nb_shares = float(_get_val(amounts, "transactionShares/value"))
+        self.nb_shares = int(float(_get_val(amounts, "transactionShares/value")))
         self.price_per_share = float(_get_val(amounts, "transactionPricePerShare/value"))
+        self.total_amount = self.price_per_share * self.nb_shares
+        self.is_acquire = _get_val(amounts, "transactionAcquiredDisposedCode/value") == "A"
 
-        self._is_acquire = _get_val(amounts, "transactionAcquiredDisposedCode/value") == "A"
         self._is_equity_swap = _get_val(element, "transactionCoding/equitySwapInvolved", allow_missing=True) == "1"
-
-        if not self._is_acquire or self._is_equity_swap or self.price_per_share == 0:
+        if self._is_equity_swap or self.price_per_share == 0:
             raise UnneededDataException(
-                "Transaction is not an acquisition, is an equity swap, or does not have price per share"
+                "Transaction is an equity swap, or does not have price per share"
             )
-
-    def to_dict(self):
-        return {
-            "nb_shares": self.nb_shares,
-            "price": self.price_per_share,
-            "date": self.date,
-            "security_title": self.security_title
-        }
 
 
 class Insider:
@@ -81,9 +73,10 @@ class Insider:
 class SEC4Data:
     xml_root = "ownershipDocument"
 
-    def __init__(self, element, form_url):
-        self.form_url = form_url
-        self.company = f"{_get_val(element, 'issuer/issuerName')} ({_get_val(element, 'issuer/issuerTradingSymbol')})"
+    def __init__(self, element, sec4_file_loc):
+        self.sec4_file_loc = sec4_file_loc
+        self.company_code = _get_val(element, 'issuer/issuerTradingSymbol')
+        self.company_name = _get_val(element, 'issuer/issuerName')
         self.insiders = []
         self.transactions = []
 
@@ -105,11 +98,3 @@ class SEC4Data:
 
         if len(self.transactions) == 0:
             raise UnneededDataException("No needed transaction")
-
-    def to_dict(self):
-        return {
-            "company": self.company,
-            "insiders": [str(insider) for insider in self.insiders],
-            "transactions": [transaction.to_dict() for transaction in self.transactions],
-            "sec4_file": self.form_url
-        }
