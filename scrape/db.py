@@ -1,13 +1,12 @@
 import logging
 import os
 from datetime import date
-from typing import List
+from typing import List, Tuple
 
 import boto3
 import pymysql
 
 from scrape import const
-from scrape.models import SEC4Data
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -23,8 +22,19 @@ def _get_db_conn() -> pymysql.Connection:
     )
 
 
-def save_to_db(data_list: List[SEC4Data]):
-    rows = [row for data in data_list for row in data.flatten()]
+def is_data_already_fetched(request_date: date) -> bool:
+    db = boto3.resource('dynamodb')
+    table = db.Table('SEC4States')
+    requested_state = table.get_item(
+        Key={
+            'State': str(request_date)
+        },
+        ConsistentRead=True
+    )
+    return 'Item' in requested_state
+
+
+def save_to_db(rows: List[Tuple]):
     log.info(f"Putting {len(rows)} records into database")
     with _get_db_conn() as connection:
         with connection.cursor() as cursor:
@@ -43,7 +53,7 @@ def save_unprocessed_files(files: List[str]):
         connection.commit()
 
 
-def save_state(request_date: date):
+def save_state(request_date: str):
     db = boto3.resource('dynamodb')
     table = db.Table('SEC4States')
 
@@ -59,7 +69,7 @@ def save_state(request_date: date):
         table.put_item(
             Item={
                 'State': 'first_date',
-                'Date': str(request_date)
+                'Date': request_date
             }
         )
 
@@ -68,7 +78,7 @@ def save_state(request_date: date):
     table.put_item(
         Item={
             'State': 'last_date',
-            'Date': str(request_date)
+            'Date': request_date
         }
     )
 
@@ -76,6 +86,6 @@ def save_state(request_date: date):
     log.info(f"Saving {request_date} as state")
     table.put_item(
         Item={
-            'State': str(request_date)
+            'State': request_date
         }
     )

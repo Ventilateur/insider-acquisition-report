@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS sec4_transactions (
+CREATE TABLE sec4_transactions (
     transaction_date DATE NOT NULL,
     company_code VARCHAR(10) NOT NULL,
     company_name VARCHAR(1024) NOT NULL,
@@ -14,6 +14,6 @@ CREATE INDEX idx_transaction_date ON sec4_transactions (transaction_date);
 CREATE INDEX idx_company_code ON sec4_transactions (company_code);
 CREATE INDEX idx_buy_or_sell ON sec4_transactions (buy_or_sell);
 
-CREATE TABLE IF NOT EXISTS sec4_unprocessed_files (
-    file VARCHAR(1024) NOT NULL UNIQUE
+CREATE TABLE sec4_unprocessed_files (
+    file VARCHAR(512) NOT NULL UNIQUE
 )

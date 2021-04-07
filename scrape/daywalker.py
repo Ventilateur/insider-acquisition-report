@@ -4,12 +4,11 @@ import os
 import re
 import time
 import uuid
-from datetime import date, timedelta
+from datetime import date
 from enum import IntEnum
 from typing import List, Optional
 from xml.etree.ElementTree import XMLPullParser
 
-import boto3
 import requests
 from requests import HTTPError, Response
 
@@ -116,15 +115,3 @@ def list_sec4_data(urls) -> List[SEC4Data]:
         current += 1
         time.sleep(_TIME_BETWEEN_REQUEST)
     return data
-
-
-def is_data_already_fetched(request_date: date) -> bool:
-    db = boto3.resource('dynamodb')
-    table = db.Table('SEC4States')
-    requested_state = table.get_item(
-        Key={
-            'State': str(request_date)
-        },
-        ConsistentRead=True
-    )
-    return 'Item' in requested_state
