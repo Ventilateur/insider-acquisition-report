@@ -1,3 +1,6 @@
+import json
+from typing import List, Tuple
+
 from scrape.exceptions import MissingDataException, UnneededDataException
 
 
@@ -98,3 +101,19 @@ class SEC4Data:
 
         if len(self.transactions) == 0:
             raise UnneededDataException("No needed transaction")
+
+    def flatten(self) -> List[Tuple]:
+        return [
+            (
+                transaction.date,
+                self.company_code,
+                self.company_name,
+                json.dumps([str(insider) for insider in self.insiders]),
+                'B' if transaction.is_acquire else 'S',
+                transaction.price_per_share,
+                transaction.nb_shares,
+                transaction.security_title,
+                self.sec4_file_loc
+            )
+            for transaction in self.transactions
+        ]

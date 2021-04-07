@@ -31,12 +31,14 @@ def list_sec4_files_of_date(request_date: date) -> List[str]:
     base = "https://www.sec.gov/Archives"
     quarter = (request_date.month + 2) // 3
     url = f"{base}/edgar/daily-index/{request_date.year}/QTR{quarter}/master.{request_date.strftime('%Y%m%d')}.idx"
-
-    r = requests.get(url)
+    print(f"Request URL: {url}")
+    r = requests.get(url, headers={'user-agent': 'postman'})
     try:
+        print(r.request.headers)
         r.raise_for_status()
     except HTTPError as e:
         if e.response.status_code == HTTPStatus.FORBIDDEN:
+            print(r.content)
             print(f"No data for {request_date}")
             return []
         else:

@@ -1,8 +1,10 @@
 import re
+import time
 from typing import List, Mapping, Optional
 from xml.etree.ElementTree import XMLPullParser
 
 import requests
+from requests import HTTPError
 
 from scrape.exceptions import MissingDataException, UnneededDataException
 from scrape.models import SEC4Data
@@ -15,8 +17,12 @@ _stop_p = re.compile(_STOP_TOKEN)
 
 
 def get_sec4_data(url) -> Optional[SEC4Data]:
-    r = requests.get(url)
-    r.raise_for_status()
+    r = requests.get(url, headers={'user-agent': 'postman'})
+    try:
+        r.raise_for_status()
+    except HTTPError as e:
+        print(r.content)
+        raise e
 
     feed = False
     parser = XMLPullParser()
@@ -47,6 +53,7 @@ def list_sec4_data(urls) -> List[SEC4Data]:
     total = len(urls)
     current = 1
     for url in urls:
+        time.sleep(1)
         print(f"Getting ({current}/{total}): {url}")
         sec4_data = get_sec4_data(url)
         if sec4_data is not None:

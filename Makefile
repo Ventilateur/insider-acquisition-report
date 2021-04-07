@@ -1,8 +1,8 @@
 
 py-dep:
-	@pip install -r requirements.txt --target ./.py-dep
+	@pip install --upgrade -r requirements.txt --target ./.py-dep
 
 bundle:
+	@rm -f deployment-pkg.zip
 	@cd .py-dep && zip -r ../deployment-pkg.zip .
-	@zip -g deployment-pkg.zip edgar.py sec4.py
-
+	@zip -gr deployment-pkg.zip scrape -x "*.pyc*"

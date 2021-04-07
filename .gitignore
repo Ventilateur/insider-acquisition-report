@@ -1,6 +1,6 @@
 .aws-sam
 .py-dep
-aws
+infra
 .idea
 venv*
 deployment-pkg.zip
