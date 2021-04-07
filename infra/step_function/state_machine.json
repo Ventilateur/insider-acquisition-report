@@ -1,0 +1,40 @@
+{
+  "StartAt": "FetchMetadata",
+  "States": {
+    "FetchMetadata": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-west-3:113942929526:function:test-step-pre",
+      "Next": "HasMetadata"
+    },
+    "HasMetadata": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.data",
+          "IsPresent": true,
+          "Next": "FetchAndSaveAll"
+        }
+      ],
+      "Default": "Stop"
+    },
+    "FetchAndSaveAll": {
+      "Type": "Map",
+      "ItemsPath": "$.data",
+      "MaxConcurrency": 1,
+      "Iterator": {
+        "StartAt": "FetchAndSave",
+        "States": {
+          "FetchAndSave": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:eu-west-3:113942929526:function:test-step-parallel",
+            "End": true
+          }
+        }
+      },
+      "Next": "Stop"
+    },
+    "Stop": {
+      "Type": "Succeed"
+    }
+  }
+}

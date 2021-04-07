@@ -1,6 +1,8 @@
 .aws-sam
 .py-dep
-infra
+.terraform
+.backend-conf
+.env.sh
 .idea
 venv*
 deployment-pkg.zip
