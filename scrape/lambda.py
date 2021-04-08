@@ -36,20 +36,21 @@ def fetch_metadata(event, _):
 
 
 # Second step, will block the state in DynamoDB
-# Returns {'urls': [urls], 'date': '2021-04-04'}
+# Returns {'urls': [[urls]], 'date': '2021-04-04'}
 def save_state(event, _):
     db.save_state(event['date'])
     return event
 
 
 # Third step, will be performed with Map in AWS Step Function
-# Input will be [urls], from input path $.urls
+# Input will be {'urls': [urls], 'date': '2021-04-04'}, from Map parameters
 # Returns {'urls': [urls], 'data': [ ( field values ) ]}
 def fetch_data(event, _):
-    data_list = list_sec4_data(event)
+    urls = event['urls']
+    data_list = list_sec4_data(urls)
     return {
-        'urls': event,
-        'data': [row for data in data_list for row in data.flatten()]
+        'urls': urls,
+        'data': [row for data in data_list for row in data.flatten(event['date'])]
     }
 
 

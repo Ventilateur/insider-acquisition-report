@@ -38,7 +38,7 @@ def save_to_db(rows: List[Tuple]):
     log.info(f"Putting {len(rows)} records into database")
     with _get_db_conn() as connection:
         with connection.cursor() as cursor:
-            insert_sql = f"INSERT INTO {const.SEC4_TRANSACTIONS_TABLE} VALUES ({', '.join(['%s'] * 9)})"
+            insert_sql = f"INSERT INTO {const.SEC4_TRANSACTIONS_TABLE} VALUES ({', '.join(['%s'] * 10)})"
             for row in rows:
                 cursor.execute(insert_sql, row)
         connection.commit()

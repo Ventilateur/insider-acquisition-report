@@ -4,7 +4,7 @@ resource "aws_db_instance" "sec_db_instance" {
   db_subnet_group_name   = aws_db_subnet_group.sec_db_sng.name
   engine                 = "mysql"
   engine_version         = "8.0"
-  identifier             = "${lower(var.tag_project_name)}-db"
+  identifier             = local.rds_db_identifier
   instance_class         = "db.t2.micro"
   multi_az               = false
   name                   = var.tag_project_name
@@ -34,8 +34,8 @@ resource "null_resource" "db_setup" {
 
 
 resource "aws_dynamodb_table" "sec4_states" {
-  hash_key = "State"
-  name = "SEC4States"
+  hash_key       = "State"
+  name           = local.sec4_dynamodb_table
   read_capacity  = 1
   write_capacity = 1
 

@@ -3,28 +3,42 @@
   "States": {
     "FetchMetadata": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:eu-west-3:113942929526:function:test-step-pre",
+      "Resource": "arn:aws:lambda:eu-west-3:113942929526:function:sec-fetch-metadata",
       "Next": "HasMetadata"
     },
     "HasMetadata": {
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.data",
+          "Variable": "$.urls",
           "IsPresent": true,
-          "Next": "FetchAndSaveAll"
+          "Next": "SaveState"
         }
       ],
       "Default": "Stop"
     },
-    "FetchAndSaveAll": {
+    "SaveState": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-west-3:113942929526:function:sec-save-state",
+      "Next": "FetchAndSave"
+    },
+    "FetchAndSave": {
       "Type": "Map",
       "ItemsPath": "$.data",
+      "Parameters": {
+        "data.$": "$$.Map.Item.Value",
+        "date.$": "$.date"
+      },
       "MaxConcurrency": 1,
       "Iterator": {
-        "StartAt": "FetchAndSave",
+        "StartAt": "FetchData",
         "States": {
-          "FetchAndSave": {
+          "FetchData": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:eu-west-3:113942929526:function:sec-fetch-data",
+            "Next": "SaveData"
+          },
+          "SaveData": {
             "Type": "Task",
             "Resource": "arn:aws:lambda:eu-west-3:113942929526:function:test-step-parallel",
             "End": true
