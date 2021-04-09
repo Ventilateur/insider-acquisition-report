@@ -50,3 +50,52 @@ resource "aws_dynamodb_table" "sec4_states" {
     project = var.tag_project_name
   }
 }
+
+
+locals {
+  db_start_stop = [
+    {
+      name = "start_db"
+      schedule_expr =  "cron(0 17 * * ? *)"
+    },
+    {
+      name = "stop_db"
+      schedule_expr =  "cron(0 20 * * ? *)"
+    }
+  ]
+}
+
+
+resource "aws_lambda_function" "db_start_stop" {
+  count = 2
+
+  filename         = var.deployment_pkg
+  function_name    = "sec_${local.db_start_stop[count.index].name}"
+  role             = aws_iam_role.sec4_lambda.arn
+  handler          = "${local.lambda_module}.${local.db_start_stop[count.index].name}"
+  source_code_hash = filebase64sha256(var.deployment_pkg)
+  runtime          = "python3.8"
+  timeout          = 10
+  memory_size      = 128
+
+  tags = {
+    Name    = "sec_${local.db_start_stop[count.index]}"
+    project = var.tag_project_name
+  }
+}
+
+
+resource "aws_cloudwatch_event_rule" "auto_start_stop_db" {
+  count = 2
+
+  name = "sec_auto_${local.db_start_stop[count.index].name}"
+  schedule_expression = local.db_start_stop[count.index].schedule_expr
+}
+
+
+resource "aws_cloudwatch_event_target" "db_start_stop" {
+  count = 2
+
+  arn = aws_lambda_function.db_start_stop[count.index].arn
+  rule = aws_cloudwatch_event_rule.auto_start_stop_db[count.index].name
+}

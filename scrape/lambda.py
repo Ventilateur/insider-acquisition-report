@@ -1,6 +1,9 @@
 import logging
+import os
 from datetime import date, timedelta
 from typing import List
+
+import boto3
 
 from scrape.daywalker import list_sec4_data, list_sec4_files_of_date
 import scrape.db as db
@@ -63,3 +66,19 @@ def save_data(event, _):
 # Input will be [urls], from input path
 def save_unprocessed_files(event, _):
     db.save_unprocessed_files(event)
+
+
+def start_db(event, _):
+    client = boto3.client('rds')
+    try:
+        client.start_db_instance(DBInstanceIdentifier=os.environ['DB_IDENTIFIER'])
+    except client.exceptions.InvalidDBInstanceStateFault:
+        log.info('DB has already started')
+
+
+def stop_db(event, _):
+    client = boto3.client('rds')
+    try:
+        client.stop_db_instance(DBInstanceIdentifier=os.environ['DB_IDENTIFIER'])
+    except client.exceptions.InvalidDBInstanceStateFault:
+        log.info('DB has already stopped')

@@ -37,8 +37,8 @@ resource "aws_iam_policy" "sec-lambda-db-policy" {
         ],
         Effect = "Allow"
         Resource = [
-          "arn:aws:rds:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:db:${local.rds_db_identifier}",
-          "arn:aws:dynamodb:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:table/${local.sec4_dynamodb_table}"
+          "arn:aws:rds:*:${data.aws_caller_identity.current.account_id}:db:*",
+          "arn:aws:dynamodb:*:${data.aws_caller_identity.current.account_id}:table/*"
         ]
       },
     ]
