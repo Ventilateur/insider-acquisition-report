@@ -7,6 +7,7 @@ import scrape.db as db
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
 
 
 def make_chunks(big_list: List, nb_elem=100) -> List[List]:
@@ -28,6 +29,9 @@ def fetch_metadata(event, _):
     urls = list_sec4_files_of_date(current_date)
     log.info(f"Found {len(urls)} files")
 
+    # Block the state in DynamoDB
+    db.save_state(str(current_date))
+
     # Return a list of chunks for easier processing
     return {
         'urls': make_chunks(urls),
@@ -35,14 +39,7 @@ def fetch_metadata(event, _):
     }
 
 
-# Second step, will block the state in DynamoDB
-# Returns {'urls': [[urls]], 'date': '2021-04-04'}
-def save_state(event, _):
-    db.save_state(event['date'])
-    return event
-
-
-# Third step, will be performed with Map in AWS Step Function
+# Second step, will be performed with Map in AWS Step Function
 # Input will be {'urls': [urls], 'date': '2021-04-04'}, from Map parameters
 # Returns {'urls': [urls], 'data': [ ( field values ) ]}
 def fetch_data(event, _):

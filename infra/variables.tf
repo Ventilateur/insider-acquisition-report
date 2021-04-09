@@ -6,13 +6,23 @@ variable "db_password" {
   type = string
 }
 
+variable "db_from_snapshot" {
+  type    = string
+  default = null
+}
+
 variable "tag_project_name" {
   type    = string
   default = "sec"
 }
 
+variable "deployment_pkg" {
+  type    = string
+  default = "deployment-pkg.zip"
+}
+
 locals {
-  rds_db_identifier = "sec-db"
+  rds_db_identifier   = "sec-db"
   sec4_dynamodb_table = "SEC4States"
 }
 
