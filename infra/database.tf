@@ -10,7 +10,7 @@ resource "aws_db_instance" "sec_db_instance" {
   username                  = var.db_username
   password                  = var.db_password
   snapshot_identifier       = var.db_from_snapshot
-  final_snapshot_identifier = "${local.rds_db_identifier}_final_snapshot"
+  final_snapshot_identifier = "${local.rds_db_identifier}-final-snapshot"
   publicly_accessible       = true
   db_subnet_group_name      = aws_db_subnet_group.sec_db_sng.name
   vpc_security_group_ids    = [aws_security_group.sec_sg.id]
@@ -63,6 +63,14 @@ locals {
       schedule_expr =  "cron(0 20 * * ? *)"
     }
   ]
+  func_db = {
+    start_db = {
+      schedule_expr =  "cron(0 17 * * ? *)"
+    },
+    stop_db = {
+      schedule_expr =  "cron(0 20 * * ? *)"
+    }
+  }
 }
 
 
@@ -78,8 +86,14 @@ resource "aws_lambda_function" "db_start_stop" {
   timeout          = 10
   memory_size      = 128
 
+  environment {
+    variables = {
+      DB_IDENTIFIER = aws_db_instance.sec_db_instance.identifier
+    }
+  }
+
   tags = {
-    Name    = "sec_${local.db_start_stop[count.index]}"
+    Name    = "sec_${local.db_start_stop[count.index].name}"
     project = var.tag_project_name
   }
 }
@@ -90,6 +104,11 @@ resource "aws_cloudwatch_event_rule" "auto_start_stop_db" {
 
   name = "sec_auto_${local.db_start_stop[count.index].name}"
   schedule_expression = local.db_start_stop[count.index].schedule_expr
+
+  tags = {
+    Name    = "sec_${local.db_start_stop[count.index].name}"
+    project = var.tag_project_name
+  }
 }
 
 
@@ -98,4 +117,15 @@ resource "aws_cloudwatch_event_target" "db_start_stop" {
 
   arn = aws_lambda_function.db_start_stop[count.index].arn
   rule = aws_cloudwatch_event_rule.auto_start_stop_db[count.index].name
+}
+
+
+resource "aws_lambda_permission" "allow_cloudwatch" {
+  count = 2
+
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.db_start_stop[count.index].function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.auto_start_stop_db[count.index].arn
 }
