@@ -55,20 +55,20 @@ resource "aws_dynamodb_table" "sec4_states" {
 locals {
   db_start_stop = [
     {
-      name = "start_db"
-      schedule_expr =  "cron(0 17 * * ? *)"
+      name          = "start_db"
+      schedule_expr = "cron(0 17 * * ? *)"
     },
     {
-      name = "stop_db"
-      schedule_expr =  "cron(0 20 * * ? *)"
+      name          = "stop_db"
+      schedule_expr = "cron(0 20 * * ? *)"
     }
   ]
   func_db = {
     start_db = {
-      schedule_expr =  "cron(0 17 * * ? *)"
+      schedule_expr = "cron(0 17 * * ? *)"
     },
     stop_db = {
-      schedule_expr =  "cron(0 20 * * ? *)"
+      schedule_expr = "cron(0 20 * * ? *)"
     }
   }
 }
@@ -102,7 +102,7 @@ resource "aws_lambda_function" "db_start_stop" {
 resource "aws_cloudwatch_event_rule" "auto_start_stop_db" {
   count = 2
 
-  name = "sec_auto_${local.db_start_stop[count.index].name}"
+  name                = "sec_auto_${local.db_start_stop[count.index].name}"
   schedule_expression = local.db_start_stop[count.index].schedule_expr
 
   tags = {
@@ -115,7 +115,7 @@ resource "aws_cloudwatch_event_rule" "auto_start_stop_db" {
 resource "aws_cloudwatch_event_target" "db_start_stop" {
   count = 2
 
-  arn = aws_lambda_function.db_start_stop[count.index].arn
+  arn  = aws_lambda_function.db_start_stop[count.index].arn
   rule = aws_cloudwatch_event_rule.auto_start_stop_db[count.index].name
 }
 

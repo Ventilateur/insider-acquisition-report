@@ -16,6 +16,7 @@ CREATE INDEX idx_sec4_file_date ON sec4_transactions (sec4_file_date);
 CREATE INDEX idx_company_code ON sec4_transactions (company_code);
 CREATE INDEX idx_buy_or_sell ON sec4_transactions (buy_or_sell);
 
-CREATE TABLE sec4_unprocessed_files (
-    file VARCHAR(512) NOT NULL UNIQUE
+CREATE TABLE sec4_query_states (
+    query_date DATE PRIMARY KEY,
+    completed BOOLEAN NOT NULL
 )

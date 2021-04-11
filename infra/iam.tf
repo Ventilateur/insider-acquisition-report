@@ -28,17 +28,12 @@ resource "aws_iam_policy" "sec-lambda-db-policy" {
     Statement = [
       {
         Action = [
-          "dynamodb:PutItem",
-          "dynamodb:GetItem",
-          "dynamodb:Query",
-          "dynamodb:UpdateItem",
           "rds:StartDBInstance",
           "rds:StopDBInstance"
         ],
         Effect = "Allow"
         Resource = [
           "arn:aws:rds:*:${data.aws_caller_identity.current.account_id}:db:*",
-          "arn:aws:dynamodb:*:${data.aws_caller_identity.current.account_id}:table/*"
         ]
       },
     ]
@@ -87,7 +82,8 @@ resource "aws_iam_policy" "sec4_sfn" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action = ["lambda:InvokeFunction"]
+        Action = [
+        "lambda:InvokeFunction"]
         Effect = "Allow"
         Resource = [
           aws_lambda_function.sec4_fetch_metadata.arn,
@@ -102,4 +98,36 @@ resource "aws_iam_policy" "sec4_sfn" {
 resource "aws_iam_role_policy_attachment" "sec4_sfn" {
   policy_arn = aws_iam_policy.sec4_sfn.arn
   role       = aws_iam_role.sec4_sfn.name
+}
+
+
+resource "aws_iam_role" "events_invokes_sfn" {
+  name = "events_invokes_sfn"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "events.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  inline_policy {
+    name = "events_invokes_sfn"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action   = ["states:StartExecution"]
+          Effect   = "Allow"
+          Resource = [aws_sfn_state_machine.sec4_daywalker.arn]
+        },
+      ]
+    })
+  }
 }

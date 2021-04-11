@@ -17,6 +17,7 @@ from scrape.models import SEC4Data
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
 
 
 class IdxColumn(IntEnum):
