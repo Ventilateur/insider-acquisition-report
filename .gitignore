@@ -5,4 +5,5 @@
 .env.sh
 .idea
 venv*
-deployment-pkg.zip
+*.zip
+terraform.tfvars

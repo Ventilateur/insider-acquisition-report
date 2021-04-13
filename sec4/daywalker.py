@@ -12,8 +12,8 @@ from xml.etree.ElementTree import XMLPullParser
 import requests
 from requests import HTTPError, Response
 
-from scrape.exceptions import CannotFetchDataException, MissingDataException, UnneededDataException
-from scrape.models import SEC4Data
+from sec4.exceptions import CannotFetchDataException, MissingDataException, UnneededDataException
+from sec4.models import SEC4Data
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)

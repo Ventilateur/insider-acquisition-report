@@ -6,8 +6,8 @@ from typing import List, Tuple
 
 import pymysql
 
-from scrape import const
-from scrape.const import sec4_query_states, sec4_transactions
+from sec4 import const
+from sec4.const import sec4_query_states, sec4_transactions
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)

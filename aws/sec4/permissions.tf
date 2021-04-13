@@ -73,13 +73,7 @@ resource "aws_iam_policy" "sfn" {
       {
         Action = ["lambda:InvokeFunction"]
         Effect = "Allow"
-        Resource = [
-          data.aws_lambda_function.pre_fetch.arn,
-          data.aws_lambda_function.fetch_metadata.arn,
-          data.aws_lambda_function.fetch_data.arn,
-          data.aws_lambda_function.save_data.arn,
-          data.aws_lambda_function.save_state.arn,
-        ]
+        Resource = [for name in keys(local.lambda_functions): aws_lambda_function.daywalker[name].arn]
       },
     ]
   })

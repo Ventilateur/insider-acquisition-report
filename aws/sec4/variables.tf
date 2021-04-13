@@ -35,10 +35,5 @@ variable "deployment_pkg" {
 
 variable "lambda_module" {
   type    = string
-  default = "lambdas"
-}
-
-variable "rds_identifier" {
-  type = string
-  default = "sec-db"
+  default = "sec4.lambda"
 }

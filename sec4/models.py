@@ -1,7 +1,7 @@
 import json
 from typing import List
 
-from scrape.exceptions import MissingDataException, UnneededDataException
+from sec4.exceptions import MissingDataException, UnneededDataException
 
 
 def _get_val(element, path, allow_missing=False):

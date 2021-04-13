@@ -4,7 +4,7 @@ resource "aws_sfn_state_machine" "daywalker" {
     States = {
       PreFetch = {
         Type     = "Task"
-        Resource = data.aws_lambda_function.pre_fetch.arn
+        Resource = aws_lambda_function.daywalker["pre_fetch"].arn
         Next     = "ShouldProceed"
       },
       ShouldProceed = {
@@ -20,7 +20,7 @@ resource "aws_sfn_state_machine" "daywalker" {
       },
       FetchMetadata = {
         Type     = "Task"
-        Resource = data.aws_lambda_function.fetch_metadata.arn
+        Resource = aws_lambda_function.daywalker["fetch_metadata"].arn
         Next     = "FetchAndSave"
       },
       FetchAndSave = {
@@ -44,12 +44,12 @@ resource "aws_sfn_state_machine" "daywalker" {
           States = {
             FetchData = {
               Type     = "Task"
-              Resource = data.aws_lambda_function.fetch_data.arn
+              Resource = aws_lambda_function.daywalker["fetch_data"].arn
               Next     = "SaveData"
             },
             SaveData = {
               Type     = "Task"
-              Resource = data.aws_lambda_function.save_data.arn
+              Resource = aws_lambda_function.daywalker["save_data"].arn
               End      = true
             }
           }
@@ -58,7 +58,7 @@ resource "aws_sfn_state_machine" "daywalker" {
       },
       SaveState = {
         Type     = "Task"
-        Resource = data.aws_lambda_function.save_state.arn
+        Resource = aws_lambda_function.daywalker["save_state"].arn
         Next     = "Stop"
       }
       Stop = {
