@@ -132,7 +132,7 @@ resource "aws_sfn_state_machine" "sec4_daywalker" {
     States = {
       PreFetch = {
         Type     = "Task"
-        Resource = aws_lambda_function.sec4_fetch_metadata.arn
+        Resource = aws_lambda_function.sec4_pre_fetch.arn
         Next     = "ShouldProceed"
       },
       ShouldProceed = {
@@ -154,41 +154,35 @@ resource "aws_sfn_state_machine" "sec4_daywalker" {
       FetchAndSave = {
         Type      = "Map",
         ItemsPath = "$.urls"
+        ResultPath = null
         Parameters = {
           "date.$" : "$.date"
           "urls.$" : "$$.Map.Item.Value"
         },
         MaxConcurrency = 1,
+        Catch = [
+          {
+            ErrorEquals = ["States.ALL"],
+            ResultPath  = "$.error"
+            Next        = "SaveState"
+          }
+        ]
         Iterator = {
           StartAt = "FetchData"
           States = {
             FetchData = {
               Type     = "Task"
               Resource = aws_lambda_function.sec4_fetch_data.arn
-              Catch = [
-                {
-                  ErrorEquals = ["States.ALL"],
-                  ResultPath  = "$.error"
-                  Next        = "SaveState"
-                }
-              ]
-              Next = "SaveData"
+              Next     = "SaveData"
             },
             SaveData = {
               Type     = "Task"
               Resource = aws_lambda_function.sec4_save_data.arn
-              Catch = [
-                {
-                  ErrorEquals = ["States.ALL"],
-                  ResultPath  = "$.error"
-                  Next        = "SaveState"
-                }
-              ]
-              End = true
+              End      = true
             }
           }
         },
-        Next = "Stop"
+        Next = "SaveState"
       },
       SaveState = {
         Type     = "Task"

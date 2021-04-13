@@ -82,13 +82,14 @@ resource "aws_iam_policy" "sec4_sfn" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action = [
-        "lambda:InvokeFunction"]
+        Action = ["lambda:InvokeFunction"]
         Effect = "Allow"
         Resource = [
+          aws_lambda_function.sec4_pre_fetch.arn,
           aws_lambda_function.sec4_fetch_metadata.arn,
           aws_lambda_function.sec4_fetch_data.arn,
           aws_lambda_function.sec4_save_data.arn,
+          aws_lambda_function.sec4_save_state.arn,
         ]
       },
     ]

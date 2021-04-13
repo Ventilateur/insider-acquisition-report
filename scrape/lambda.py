@@ -83,7 +83,7 @@ def save_data(event, _):
 
 
 # Fifth step, save state to either complete or incomplete
-# Input  {'date': '2021-01-01', 'error': {error}} or {'date': '2021-01-01'}
+# Input  {'date': '2021-01-01', 'error': {error}} or {'date': '2021-01-01', 'urls': [[urls], [urls], ...]}
 # Output {}
 def save_state(event, _):
     error = event.get('error', None)
