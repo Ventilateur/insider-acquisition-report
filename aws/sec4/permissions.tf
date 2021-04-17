@@ -5,8 +5,8 @@
 locals {
   permission_names = {
     lambda = "${var.tag_project_name}_lambda"
-    sfn = "${var.tag_project_name}_sfn"
-    event = "${var.tag_project_name}_event"
+    sfn    = "${var.tag_project_name}_sfn"
+    event  = "${var.tag_project_name}_event"
   }
 }
 
@@ -71,9 +71,9 @@ resource "aws_iam_policy" "sfn" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action = ["lambda:InvokeFunction"]
-        Effect = "Allow"
-        Resource = [for name in keys(local.lambda_functions): aws_lambda_function.daywalker[name].arn]
+        Action   = ["lambda:InvokeFunction"]
+        Effect   = "Allow"
+        Resource = [for name in keys(local.lambda_functions) : aws_lambda_function.daywalker[name].arn]
       },
     ]
   })
@@ -121,13 +121,13 @@ resource "aws_iam_policy" "event" {
 
   policy = jsonencode({
     Version = "2012-10-17"
-      Statement = [
-        {
-          Action   = ["states:StartExecution"]
-          Effect   = "Allow"
-          Resource = [aws_sfn_state_machine.daywalker.arn]
-        },
-      ]
+    Statement = [
+      {
+        Action   = ["states:StartExecution"]
+        Effect   = "Allow"
+        Resource = [aws_sfn_state_machine.daywalker.arn]
+      },
+    ]
   })
 
   tags = {

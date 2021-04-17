@@ -1,13 +1,10 @@
 import json
 import logging
-import os
 from datetime import date, timedelta
 from typing import List
 
-import boto3
-
-from sec4.daywalker import list_sec4_data, list_sec4_files_of_date
 import sec4.db as db
+from sec4.daywalker import list_sec4_data, list_sec4_files_of_date
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -93,19 +90,3 @@ def save_state(event, _):
     success = error is None
     db.save_state(event['date'], success)
     return {}
-
-
-def start_db(event, _):
-    client = boto3.client('rds')
-    try:
-        client.start_db_instance(DBInstanceIdentifier=os.environ['DB_IDENTIFIER'])
-    except client.exceptions.InvalidDBInstanceStateFault:
-        log.info('DB has already started')
-
-
-def stop_db(event, _):
-    client = boto3.client('rds')
-    try:
-        client.stop_db_instance(DBInstanceIdentifier=os.environ['DB_IDENTIFIER'])
-    except client.exceptions.InvalidDBInstanceStateFault:
-        log.info('DB has already stopped')

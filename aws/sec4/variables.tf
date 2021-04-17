@@ -8,18 +8,18 @@ variable "db_password" {
 
 variable "db" {
   type = object({
-    host=string,
-    name=string,
-    event_names=object({
-      db_started=string
+    host = string,
+    name = string,
+    event_names = object({
+      db_started = string
     })
   })
 }
 
 variable "network" {
   type = object({
-    security_group_id=string,
-    subnet_ids=list(string)
+    security_group_id = string,
+    subnet_ids        = list(string)
   })
 }
 

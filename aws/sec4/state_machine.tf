@@ -24,8 +24,8 @@ resource "aws_sfn_state_machine" "daywalker" {
         Next     = "FetchAndSave"
       },
       FetchAndSave = {
-        Type      = "Map",
-        ItemsPath = "$.urls"
+        Type       = "Map",
+        ItemsPath  = "$.urls"
         ResultPath = null
         Parameters = {
           "date.$" : "$.date"

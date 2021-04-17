@@ -27,7 +27,7 @@ variable "deployment_pkg" {
 
 variable "lambda_module" {
   type    = string
-  default = "lambda"
+  default = "infra.lambda"
 }
 
 variable "rds_identifier" {

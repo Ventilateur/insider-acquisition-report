@@ -8,33 +8,33 @@ locals {
 
   lambda_functions = {
     pre_fetch = {
-      timeout = 30
-      memory = 128
-      env_vars = local.rds_env_vars
+      timeout   = 30
+      memory    = 128
+      env_vars  = local.rds_env_vars
       needs_vpc = true
     }
     fetch_metadata = {
-      timeout = 30
-      memory = 128
-      env_vars = {}
+      timeout   = 30
+      memory    = 128
+      env_vars  = {}
       needs_vpc = false
     }
     fetch_data = {
-      timeout = 300
-      memory = 256
-      env_vars = {}
+      timeout   = 300
+      memory    = 256
+      env_vars  = {}
       needs_vpc = false
     }
     save_data = {
-      timeout = 300
-      memory = 512
-      env_vars = local.rds_env_vars
+      timeout   = 300
+      memory    = 512
+      env_vars  = local.rds_env_vars
       needs_vpc = true
     }
     save_state = {
-      timeout = 30
-      memory = 128
-      env_vars = local.rds_env_vars
+      timeout   = 30
+      memory    = 128
+      env_vars  = local.rds_env_vars
       needs_vpc = true
     }
   }
@@ -64,7 +64,7 @@ resource "aws_lambda_function" "daywalker" {
     for_each = each.value.needs_vpc ? [1] : []
     content {
       security_group_ids = [var.network.security_group_id]
-      subnet_ids = var.network.subnet_ids
+      subnet_ids         = var.network.subnet_ids
     }
   }
 

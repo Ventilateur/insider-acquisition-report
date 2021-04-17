@@ -39,16 +39,16 @@ resource "null_resource" "db_setup" {
 
 
 #############################################################
-# Automatically start DB at 17h everyday and stop it at 20h #
+# Automatically start DB at 12h everyday and stop it at 15h #
 #############################################################
 
 locals {
   func_db = {
     start_db = {
-      schedule_expr = "cron(0 17 * * ? *)"
+      schedule_expr = "cron(0 12 * * ? *)"
     },
     stop_db = {
-      schedule_expr = "cron(0 20 * * ? *)"
+      schedule_expr = "cron(0 15 * * ? *)"
     }
   }
 }
