@@ -6,7 +6,6 @@ from typing import List, Tuple
 
 import pymysql
 
-from sec4 import const
 from sec4.const import sec4_query_states, sec4_transactions
 
 logging.basicConfig(level=logging.INFO)
@@ -54,7 +53,7 @@ def should_fetch_data(request_date: date) -> bool:
 def save_to_db(rows: List[Tuple]):
     with _get_db_conn() as connection:
         with connection.cursor() as cursor:
-            insert_sql = f"INSERT INTO {const.SEC4_TRANSACTIONS_TABLE} VALUES ({', '.join(['%s'] * 10)})"
+            insert_sql = f"INSERT INTO {sec4_transactions.__name__} VALUES ({', '.join(['%s'] * 10)})"
             for row in rows:
                 cursor.execute(insert_sql, row)
         connection.commit()
@@ -70,3 +69,15 @@ def save_state(request_date: str, success: bool):
             )
             cursor.execute(insert_sql, (request_date, 1 if success else 0))
         connection.commit()
+
+
+def load_data(from_date: str, to_date: str) -> List[dict]:
+    with _get_db_conn() as connection:
+        with connection.cursor() as cursor:
+            query_sql = (
+                f"SELECT * "
+                f"FROM {sec4_transactions.__name__} "
+                f"WHERE ({sec4_transactions.transaction_date.name} BETWEEN %s AND %s)"
+            )
+            cursor.execute(query_sql, (from_date, to_date))
+            return cursor.fetchall()

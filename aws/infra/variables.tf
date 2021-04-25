@@ -34,3 +34,7 @@ variable "rds_identifier" {
   type    = string
   default = "sec-db"
 }
+
+variable "report_s3_bucket" {
+  type = string
+}

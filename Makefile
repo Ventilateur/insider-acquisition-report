@@ -39,7 +39,7 @@ py-dep:
 	@pip install --upgrade -r requirements.txt --target ./.py-dep
 
 infra/lambda-bundle:
-	@zip aws/infra/infra-pkg.zip infra
+	@zip -r aws/infra/infra-pkg.zip infra
 
 sec4/lambda-bundle:
 	@rm -f aws/sec4/sec4-pkg.zip
